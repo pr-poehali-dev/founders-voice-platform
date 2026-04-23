@@ -180,10 +180,226 @@ function ScrollSection({ children, className = "" }: { children: React.ReactNode
   );
 }
 
+type ModalType = "none" | "login" | "register";
+
+function AuthModal({ type, onClose, onSwitch }: { type: ModalType; onClose: () => void; onSwitch: (t: ModalType) => void }) {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({ name: "", email: "", company: "", linkedin: "", password: "" });
+
+  if (type === "none") return null;
+
+  const isRegister = type === "register";
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative glass-card rounded-3xl w-full max-w-md p-8 border border-[#2a2a2a] animate-fade-in-up">
+        <button onClick={onClose} className="absolute top-5 right-5 text-white/30 hover:text-white transition-colors">
+          <Icon name="X" size={18} />
+        </button>
+
+        <div className="flex items-center gap-2 mb-8">
+          <div className="w-8 h-8 rounded-lg bg-[#00ff88] flex items-center justify-center">
+            <span className="text-black font-display font-black text-sm">L</span>
+          </div>
+          <span className="font-display font-black text-lg">LOUDLY</span>
+        </div>
+
+        {isRegister ? (
+          <>
+            {/* Шаги */}
+            <div className="flex items-center gap-2 mb-6">
+              {[1, 2, 3].map((s) => (
+                <div key={s} className="flex items-center gap-2 flex-1">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-display font-black transition-all ${step >= s ? "bg-[#00ff88] text-black" : "bg-[#1e1e1e] text-white/30"}`}>
+                    {step > s ? <Icon name="Check" size={12} /> : s}
+                  </div>
+                  {s < 3 && <div className={`flex-1 h-0.5 transition-all ${step > s ? "bg-[#00ff88]" : "bg-[#1e1e1e]"}`} />}
+                </div>
+              ))}
+            </div>
+
+            <h2 className="font-display font-black text-2xl mb-1">
+              {step === 1 && "Основная информация"}
+              {step === 2 && "Верификация статуса"}
+              {step === 3 && "Почти готово!"}
+            </h2>
+            <p className="text-white/40 text-sm font-body mb-6">
+              {step === 1 && "Расскажи о себе"}
+              {step === 2 && "Подтверди, что ты основатель"}
+              {step === 3 && "Создай пароль для входа"}
+            </p>
+
+            {step === 1 && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-white/40 text-xs font-body mb-1.5 block">Имя и фамилия *</label>
+                  <input
+                    value={form.name}
+                    onChange={e => setForm({ ...form, name: e.target.value })}
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-sm font-body text-white placeholder-white/20 focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                    placeholder="Иван Петров"
+                  />
+                </div>
+                <div>
+                  <label className="text-white/40 text-xs font-body mb-1.5 block">Корпоративный email *</label>
+                  <input
+                    value={form.email}
+                    onChange={e => setForm({ ...form, email: e.target.value })}
+                    type="email"
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-sm font-body text-white placeholder-white/20 focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                    placeholder="ivan@yourcompany.com"
+                  />
+                </div>
+                <div>
+                  <label className="text-white/40 text-xs font-body mb-1.5 block">Название компании *</label>
+                  <input
+                    value={form.company}
+                    onChange={e => setForm({ ...form, company: e.target.value })}
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-sm font-body text-white placeholder-white/20 focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                    placeholder="NovaTech Inc."
+                  />
+                </div>
+                <button
+                  onClick={() => setStep(2)}
+                  disabled={!form.name || !form.email || !form.company}
+                  className="btn-neon w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+                >
+                  Далее <Icon name="ArrowRight" size={15} />
+                </button>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-white/40 text-xs font-body mb-1.5 block">LinkedIn профиль</label>
+                  <input
+                    value={form.linkedin}
+                    onChange={e => setForm({ ...form, linkedin: e.target.value })}
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-sm font-body text-white placeholder-white/20 focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                    placeholder="linkedin.com/in/yourname"
+                  />
+                </div>
+                <div className="glass-card rounded-xl p-4 border border-[#00ff88]/15">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-[#00ff88]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Icon name="Mail" size={14} className="text-[#00ff88]" />
+                    </div>
+                    <div>
+                      <div className="font-body font-semibold text-sm mb-1">Проверка email</div>
+                      <p className="text-white/40 text-xs font-body leading-relaxed">
+                        Мы отправим письмо на <span className="text-[#00ff88]">{form.email || "твой email"}</span> для подтверждения корпоративного адреса
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => setStep(1)} className="btn-outline-neon px-5 py-3 rounded-xl text-sm flex items-center gap-1.5">
+                    <Icon name="ArrowLeft" size={14} /> Назад
+                  </button>
+                  <button onClick={() => setStep(3)} className="btn-neon flex-1 py-3 rounded-xl text-sm flex items-center justify-center gap-2">
+                    Продолжить <Icon name="ArrowRight" size={15} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-white/40 text-xs font-body mb-1.5 block">Пароль *</label>
+                  <input
+                    value={form.password}
+                    onChange={e => setForm({ ...form, password: e.target.value })}
+                    type="password"
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-sm font-body text-white placeholder-white/20 focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                    placeholder="Минимум 8 символов"
+                  />
+                </div>
+                <div className="glass-card rounded-xl p-4 border border-[#00ff88]/15">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon name="BadgeCheck" size={14} className="text-[#00ff88]" />
+                    <span className="text-sm font-body font-semibold">Твой профиль:</span>
+                  </div>
+                  <div className="text-white/50 text-xs font-body space-y-1">
+                    <div>{form.name} · {form.company}</div>
+                    <div>{form.email}</div>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => setStep(2)} className="btn-outline-neon px-5 py-3 rounded-xl text-sm flex items-center gap-1.5">
+                    <Icon name="ArrowLeft" size={14} /> Назад
+                  </button>
+                  <button
+                    disabled={!form.password}
+                    className="btn-neon flex-1 py-3 rounded-xl text-sm flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Icon name="UserCheck" size={15} /> Зарегистрироваться
+                  </button>
+                </div>
+                <p className="text-white/20 text-xs font-body text-center">
+                  Нажимая кнопку, ты соглашаешься с{" "}
+                  <span className="text-white/40 underline cursor-pointer">условиями использования</span>
+                </p>
+              </div>
+            )}
+
+            <div className="mt-6 pt-6 border-t border-[#1e1e1e] text-center">
+              <span className="text-white/30 text-sm font-body">Уже есть аккаунт? </span>
+              <button onClick={() => onSwitch("login")} className="text-[#00ff88] text-sm font-body font-semibold hover:underline">
+                Войти
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 className="font-display font-black text-2xl mb-1">Добро пожаловать</h2>
+            <p className="text-white/40 text-sm font-body mb-6">Войди в свой аккаунт Loudly</p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-white/40 text-xs font-body mb-1.5 block">Email</label>
+                <input
+                  type="email"
+                  className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-sm font-body text-white placeholder-white/20 focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                  placeholder="ivan@yourcompany.com"
+                />
+              </div>
+              <div>
+                <label className="text-white/40 text-xs font-body mb-1.5 block">Пароль</label>
+                <input
+                  type="password"
+                  className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-sm font-body text-white placeholder-white/20 focus:outline-none focus:border-[#00ff88]/50 transition-colors"
+                  placeholder="••••••••"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button className="text-white/40 text-xs font-body hover:text-[#00ff88] transition-colors">Забыл пароль?</button>
+              </div>
+              <button className="btn-neon w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-2">
+                <Icon name="LogIn" size={15} /> Войти
+              </button>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-[#1e1e1e] text-center">
+              <span className="text-white/30 text-sm font-body">Нет аккаунта? </span>
+              <button onClick={() => onSwitch("register")} className="text-[#00ff88] text-sm font-body font-semibold hover:underline">
+                Зарегистрироваться
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Index() {
   const [activeSection, setActiveSection] = useState("statements");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tickerPaused, setTickerPaused] = useState(false);
+  const [modal, setModal] = useState<ModalType>("none");
 
   const scrollTo = (id: string) => {
     setActiveSection(id);
@@ -193,6 +409,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
+      <AuthModal type={modal} onClose={() => setModal("none")} onSwitch={setModal} />
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[#1e1e1e] bg-[#0a0a0a]/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
@@ -216,10 +433,10 @@ export default function Index() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="hidden md:flex btn-outline-neon px-4 py-2 rounded-xl text-sm">
+            <button onClick={() => setModal("login")} className="hidden md:flex btn-outline-neon px-4 py-2 rounded-xl text-sm">
               Войти
             </button>
-            <button className="btn-neon px-4 py-2 rounded-xl text-sm">
+            <button onClick={() => setModal("register")} className="btn-neon px-4 py-2 rounded-xl text-sm whitespace-nowrap">
               Стать основателем
             </button>
             <button
@@ -232,16 +449,24 @@ export default function Index() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-[#1e1e1e] bg-[#0a0a0a] px-4 py-4 flex flex-col gap-3">
+          <div className="lg:hidden border-t border-[#1e1e1e] bg-[#0a0a0a] px-4 py-4 flex flex-col gap-1">
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollTo(item.id)}
-                className="nav-link text-left py-2"
+                className="nav-link text-left py-3 border-b border-[#1a1a1a] last:border-0"
               >
                 {item.label}
               </button>
             ))}
+            <div className="flex gap-3 pt-4 mt-2">
+              <button onClick={() => { setModal("login"); setMobileMenuOpen(false); }} className="btn-outline-neon flex-1 py-3 rounded-xl text-sm">
+                Войти
+              </button>
+              <button onClick={() => { setModal("register"); setMobileMenuOpen(false); }} className="btn-neon flex-1 py-3 rounded-xl text-sm">
+                Регистрация
+              </button>
+            </div>
           </div>
         )}
       </nav>
@@ -266,7 +491,7 @@ export default function Index() {
       </div>
 
       {/* HERO */}
-      <section className="relative pt-36 pb-20 overflow-hidden grid-pattern">
+      <section className="relative pt-32 md:pt-36 pb-16 md:pb-20 overflow-hidden grid-pattern">
         <div className="absolute inset-0 z-0">
           <img src={HERO_IMAGE} alt="hero" className="w-full h-full object-cover opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/60 via-[#0a0a0a]/40 to-[#0a0a0a]" />
@@ -284,7 +509,7 @@ export default function Index() {
               Платформа для основателей нового поколения
             </div>
 
-            <h1 className="font-display font-black text-5xl md:text-7xl xl:text-8xl leading-[0.95] mb-6 animate-fade-in-up-delay-1">
+            <h1 className="font-display font-black text-4xl sm:text-5xl md:text-7xl xl:text-8xl leading-[0.95] mb-5 md:mb-6 animate-fade-in-up-delay-1">
               ГОВОРИ
               <br />
               <span className="gradient-text">ГРОМКО.</span>
@@ -292,22 +517,25 @@ export default function Index() {
               <span className="text-white/30">ВЛИЯЙ.</span>
             </h1>
 
-            <p className="text-white/60 text-lg md:text-xl font-body max-w-xl mb-8 leading-relaxed animate-fade-in-up-delay-2">
+            <p className="text-white/60 text-base md:text-xl font-body max-w-xl mb-7 md:mb-8 leading-relaxed animate-fade-in-up-delay-2">
               Платформа публичных заявлений, экспертной аналитики и живых дискуссий для тех, кто строит будущее прямо сейчас.
             </p>
 
-            <div className="flex flex-wrap gap-4 mb-16 animate-fade-in-up-delay-3">
-              <button className="btn-neon px-8 py-4 rounded-2xl text-base flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row gap-3 mb-10 md:mb-16 animate-fade-in-up-delay-3">
+              <button
+                onClick={() => setModal("register")}
+                className="btn-neon px-6 md:px-8 py-4 rounded-2xl text-sm md:text-base flex items-center justify-center gap-2"
+              >
                 <Icon name="UserCheck" size={18} />
                 Получить верификацию
               </button>
-              <button className="btn-outline-neon px-8 py-4 rounded-2xl text-base flex items-center gap-2">
+              <button className="btn-outline-neon px-6 md:px-8 py-4 rounded-2xl text-sm md:text-base flex items-center justify-center gap-2">
                 <Icon name="Play" size={18} />
                 Смотреть эфир
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-12 animate-fade-in-up-delay-4">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-6 sm:gap-12 animate-fade-in-up-delay-4">
               {[
                 { num: "2 400+", label: "Верифицированных основателей" },
                 { num: "14K", label: "Заявлений и публикаций" },
@@ -315,8 +543,8 @@ export default function Index() {
                 { num: "98%", label: "Точность верификации" },
               ].map((stat) => (
                 <div key={stat.label}>
-                  <div className="stat-number text-3xl md:text-4xl neon-text">{stat.num}</div>
-                  <div className="text-white/40 text-sm mt-1 font-body">{stat.label}</div>
+                  <div className="stat-number text-2xl md:text-4xl neon-text">{stat.num}</div>
+                  <div className="text-white/40 text-xs md:text-sm mt-1 font-body">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -325,12 +553,12 @@ export default function Index() {
       </section>
 
       {/* STATEMENTS */}
-      <section id="statements" className="py-24 max-w-7xl mx-auto px-4 md:px-8">
+      <section id="statements" className="py-14 md:py-24 max-w-7xl mx-auto px-4 md:px-8">
         <ScrollSection>
-          <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center justify-between mb-8 md:mb-12">
             <div>
               <div className="tag-badge verified-badge mb-3 inline-flex">Публичные заявления</div>
-              <h2 className="font-display font-black text-3xl md:text-4xl">Голос основателей</h2>
+              <h2 className="font-display font-black text-2xl md:text-4xl">Голос основателей</h2>
             </div>
             <button className="btn-outline-neon px-5 py-2.5 rounded-xl text-sm hidden md:flex items-center gap-2">
               Все заявления <Icon name="ArrowRight" size={14} />
@@ -388,7 +616,7 @@ export default function Index() {
       </section>
 
       {/* ANALYTICS */}
-      <section id="analytics" className="py-24 bg-[#080808]">
+      <section id="analytics" className="py-14 md:py-24 bg-[#080808]">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <ScrollSection>
             <div className="flex items-center justify-between mb-12">
@@ -443,7 +671,7 @@ export default function Index() {
       </section>
 
       {/* PANELS */}
-      <section id="panels" className="py-24 max-w-7xl mx-auto px-4 md:px-8">
+      <section id="panels" className="py-14 md:py-24 max-w-7xl mx-auto px-4 md:px-8">
         <ScrollSection>
           <div className="flex items-center justify-between mb-12">
             <div>
@@ -512,7 +740,7 @@ export default function Index() {
       </section>
 
       {/* CALENDAR */}
-      <section id="calendar" className="py-24 bg-[#080808]">
+      <section id="calendar" className="py-14 md:py-24 bg-[#080808]">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <ScrollSection>
             <div className="mb-12">
@@ -558,7 +786,7 @@ export default function Index() {
       </section>
 
       {/* TOPS */}
-      <section id="tops" className="py-24 max-w-7xl mx-auto px-4 md:px-8">
+      <section id="tops" className="py-14 md:py-24 max-w-7xl mx-auto px-4 md:px-8">
         <ScrollSection>
           <div className="mb-12">
             <div className="tag-badge hot-badge mb-3 inline-flex">
@@ -621,7 +849,7 @@ export default function Index() {
       </section>
 
       {/* EXPERTS */}
-      <section id="experts" className="py-24 bg-[#080808]">
+      <section id="experts" className="py-14 md:py-24 bg-[#080808]">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <ScrollSection>
             <div className="flex items-center justify-between mb-12">
@@ -682,7 +910,7 @@ export default function Index() {
       </section>
 
       {/* VERIFICATION CTA */}
-      <section className="py-24 max-w-7xl mx-auto px-4 md:px-8">
+      <section className="py-14 md:py-24 max-w-7xl mx-auto px-4 md:px-8">
         <ScrollSection>
           <div className="relative rounded-3xl overflow-hidden border border-[#00ff88]/20 glow-green">
             <div className="absolute inset-0 grid-pattern opacity-50" />
@@ -751,7 +979,7 @@ export default function Index() {
                   </div>
                 </div>
 
-                <button className="btn-neon w-full py-4 rounded-xl text-sm flex items-center justify-center gap-2">
+                <button onClick={() => setModal("register")} className="btn-neon w-full py-4 rounded-xl text-sm flex items-center justify-center gap-2">
                   <Icon name="UserCheck" size={16} />
                   Подать заявку на верификацию
                 </button>
@@ -765,7 +993,7 @@ export default function Index() {
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="py-24 bg-[#080808]">
+      <section id="about" className="py-14 md:py-24 bg-[#080808]">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <ScrollSection>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -784,9 +1012,13 @@ export default function Index() {
                 <p className="text-white/40 font-body leading-relaxed mb-8">
                   Мы верифицируем каждого участника, обеспечиваем достоверность и создаём среду, где слово основателя имеет вес.
                 </p>
-                <div className="flex flex-wrap gap-4">
-                  <button className="btn-neon px-6 py-3 rounded-xl text-sm">Присоединиться</button>
-                  <button className="btn-outline-neon px-6 py-3 rounded-xl text-sm">Медиакит</button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button onClick={() => setModal("register")} className="btn-neon px-6 py-3.5 rounded-xl text-sm flex items-center justify-center gap-2">
+                    <Icon name="UserCheck" size={15} /> Присоединиться
+                  </button>
+                  <button className="btn-outline-neon px-6 py-3.5 rounded-xl text-sm flex items-center justify-center gap-2">
+                    <Icon name="FileText" size={15} /> Медиакит
+                  </button>
                 </div>
               </div>
 
